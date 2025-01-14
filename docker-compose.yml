@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cudl-search-api
+    container_name: dcp-solr-api
     environment:
       SOLR_HOST: ${SOLR_HOST:-host.docker.internal}
       SOLR_PORT: ${SOLR_PORT:-8983}
@@ -14,8 +14,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '1'
           memory: 512M
         reservations:
-          cpus: '0.5'
+          cpus: '1'
           memory: 512M
