@@ -1,6 +1,6 @@
 # Darwin Search API
 
-This repository is based off [CUDL Search](https://github.com/cambridge-collection/cudl-search).
+This repository is based off [CUDL Search](https://github.com/cambridge-collection/cudl-search). The default branch for the darwin release is `darwin-main`. `main` contains cudl-search.
 
 ## Prerequisites
 

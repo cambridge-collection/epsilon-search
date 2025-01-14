@@ -14,10 +14,12 @@ from urllib.parse import parse_qs, urlparse
 logger = logging.getLogger('gunicorn.error')
 
 origins = [
-    "*"
+    "http://localhost:5173",
+    "https://darwin-editorial.cudl-sandbox.net",
+    "https://darwin-editorial.darwinproject.ac.uk"
 ]
 
-facet_query = {"facet":{"f1-document-type":{"type":"terms","field":"facet-document-type","limit":10,"sort":{"index":"asc"}},"f1-author":{"type":"terms","field":"facet-author","limit":5,"sort":{"count":"desc"}},"f1-addressee":{"type":"terms","field":"facet-addressee","limit":5,"sort":{"count":"desc"}},"f1-correspondent":{"type":"terms","field":"facet-correspondent","limit":5,"sort":{"count":"desc"}},"f1-volume":{"type":"terms","field":"facet-volume","limit":40,"sort":{"index":"asc"}},"f1-entry-cancelled":{"type":"terms","field":"facet-entry-cancelled","limit":5,"sort":{"index":"asc"}},"f1-document-online":{"type":"terms","field":"facet-document-online","limit":5,"sort":{"index":"asc"}},"f1-letter-published":{"type":"terms","field":"facet-letter-published","limit":5,"sort":{"index":"asc"}},"f1-translation-published":{"type":"terms","field":"facet-translation-published","limit":5,"sort":{"index":"asc"}},"f1-footnotes-published":{"type":"terms","field":"facet-footnotes-published","limit":5,"sort":{"index":"asc"}},"f1-has-tnotes":{"type":"terms","field":"facet-has-tnotes","limit":5,"sort":{"index":"asc"}},"f1-has-cdnotes":{"type":"terms","field":"facet-has-cdnotes","limit":5,"sort":{"index":"asc"}},"f1-has-annotations":{"type":"terms","field":"facet-has-annotations","limit":5,"sort":{"index":"asc"}},"f1-linked-to-cudl-images":{"type":"terms","field":"facet-linked-to-cudl-images","limit":5,"sort":{"index":"asc"}},"f1-darwin-letter":{"type":"terms","field":"facet-darwin-letter","limit":5,"sort":{"index":"asc"}},"f1-year":{"type":"terms","field":"facet-year","limit":100,"sort":{"index":"asc"},"facet":{"f1-year-month":{"type":"terms","field":"facet-year-month","limit":24,"sort":{"index":"asc"},"facet":{"f1-year-month-day":{"type":"terms","field":"facet-year-month-day","limit":62,"sort":{"index":"asc"}}}}}}}}
+facet_query = {"facet":{"f1-document-type":{"type":"terms","field":"facet-document-type","limit":10,"sort":{"index":"asc"}},"f1-author":{"type":"terms","field":"facet-author","limit":5,"sort":{"count":"desc"}},"f1-addressee":{"type":"terms","field":"facet-addressee","limit":5,"sort":{"count":"desc"}},"f1-correspondent":{"type":"terms","field":"facet-correspondent","limit":5,"sort":{"count":"desc"}},"f1-repository":{"type":"terms","field":"facet-repository","limit":5,"sort":{"index":"asc"}},"f1-volume":{"type":"terms","field":"facet-volume","limit":5,"sort":{"index":"asc"}},"f1-entry-cancelled":{"type":"terms","field":"facet-entry-cancelled","limit":5,"sort":{"index":"desc"}},"f1-document-online":{"type":"terms","field":"facet-document-online","limit":5,"sort":{"index":"desc"}},"f1-letter-published":{"type":"terms","field":"facet-letter-published","limit":5,"sort":{"index":"desc"}},"f1-translation-published":{"type":"terms","field":"facet-translation-published","limit":5,"sort":{"index":"desc"}},"f1-footnotes-published":{"type":"terms","field":"facet-footnotes-published","limit":5,"sort":{"index":"desc"}},"f1-has-tnotes":{"type":"terms","field":"facet-has-tnotes","limit":5,"sort":{"index":"desc"}},"f1-has-cdnotes":{"type":"terms","field":"facet-has-cdnotes","limit":5,"sort":{"index":"desc"}},"f1-has-annotations":{"type":"terms","field":"facet-has-annotations","limit":5,"sort":{"index":"desc"}},"f1-linked-to-cudl-images":{"type":"terms","field":"facet-linked-to-cudl-images","limit":5,"sort":{"index":"desc"}},"f1-darwin-letter":{"type":"terms","field":"facet-darwin-letter","limit":5,"sort":{"index":"desc"}},"f1-year":{"type":"terms","field":"facet-year","limit":100,"sort":{"index":"asc"},"facet":{"f1-year-month":{"type":"terms","field":"facet-year-month","limit":24,"sort":{"index":"asc"},"facet":{"f1-year-month-day":{"type":"terms","field":"facet-year-month-day","limit":62,"sort":{"index":"asc"}}}}}}}}
 
 if 'SOLR_HOST' in os.environ:
     SOLR_HOST = os.environ['SOLR_HOST']
@@ -80,6 +82,17 @@ def stringify(p):
     elif not type(p) in [dict, tuple]:
         result = str(p)
     return result
+
+def listify(p):
+    result = []
+    if type(p) is str:
+        result.append(p)
+    elif type(p) is list:
+        result = p
+    else:
+        result.append(p)
+    return result
+
 
 def translate_params(resource_type: str, **url_params):
     translation_key = {
@@ -195,7 +208,7 @@ def translate_params(resource_type: str, **url_params):
                 value_final = "(%s)" % val_string
                 q.append(value_final)
             elif re.match(r'^f[0-9]+-date$', name):
-                val_list = value.split(',')
+                val_list = value
                 val_list.sort()
                 fields = ['facet-year', 'facet-year-month', 'facet-year-month-day']
                 for date in val_list:
@@ -220,7 +233,8 @@ def translate_params(resource_type: str, **url_params):
             elif re.match(r'^f[0-9]+-.+?$', name):
                 # match old-style xtf facet names f\d+-
                 solr_name = re.sub(r'^f[0-9]+-(.+?)$',r'facet-\1', name)
-                fq.append('%s:"%s"' % (solr_name, re.sub(r'^"(.+?)"$', r'\1', value)))
+                for x in listify(value):
+                    fq.append('%s:"%s"' % (solr_name, re.sub(r'^"(.+?)"$', r'\1', x)))
             elif re.match(r'^(facet|s)-.+?$', name):
                 # Add facet params starting facet- or s- (only allowed on site)
                 fq.append('%s:"%s"' % (name, re.sub(r'^"(.+?)"$', r'\1', value)))
@@ -239,7 +253,7 @@ def translate_params(resource_type: str, **url_params):
                 solr_params['sort'] = ' '.join([sort_val, sort_order])
             elif name == 'expand':
                 expand_raw = set_params['expand']
-                if expand_raw in ['author','addressee', 'correspondent']:
+                if expand_raw in ['author','addressee', 'correspondent', 'repository', 'volume']:
                     expand_clauses['f.facet-%s.facet.limit' % expand_raw]='-1'
                     expand_clauses['f.facet-%s.facet.sort' % expand_raw]='-1'
             elif name != "rows":
@@ -311,7 +325,6 @@ async def get_request(resource_type: str, **kwargs):
         r = requests.get("%s/solr/%s/spell" % (SOLR_URL, core),
                              params=solr_params,
                              headers={"content-type": "application/json; charset=UTF-8"},
-                             #json=facet_query,
                              timeout=60)
         r.raise_for_status()
     except requests.exceptions.RequestException as e:
@@ -381,6 +394,7 @@ async def get_pages(request: Request,
 
     facets = {}
     # Copy facet params into facets array
+    # The following is not dealing with them - none of the s_ are passed on.
     for x in request.query_params.keys():
         if re.match(r'^(facet|s)-.+?$', x):
             facets[x]=request.query_params[x]
@@ -398,10 +412,7 @@ async def get_pages(request: Request,
 
 @app.get("/items")
 async def get_items(request: Request,
-              q: List[str] = Query(default=None),
-              fq: List[str] = Query(default=None),
               sort: Union[str, None] = None,
-              start: Union[str, None] = None,
               page: Union[int, None] = 1,
               rows: Union[int, None] = None,
               expand: Union[str, None] = None,
@@ -426,37 +437,15 @@ async def get_items(request: Request,
     #print(request.query_params.keys())
     for x in request.query_params.keys():
         if re.match(r'^f[0-9]+-.+?$', x):
-            facets[x]=request.query_params[x]
-    #original_sort = None
-    #r = re.compile("^collection-slug:")
-
-    #if fq:
-    #    fq_filtered = list(filter(r.match, fq))
-    #else:
-    #    fq_filtered = None
-    #collection_facet = fq_filtered[0] if fq_filtered else None
-    #if sort and re.search(r'collection_sort', sort):
-    #    original_sort = sort
-    #    if collection_facet:
-    #        if sort and re.search(r'collection_sort\s+(asc|desc)', sort.strip()):
-    #            collection_name_raw = re.sub(r'^collection-slug:', '', collection_facet)
-    #            collection_name = re.sub(r'\s', '_', collection_name_raw)
-    #            sort_field = "%s_sort" % collection_name
-    #            sort = re.sub(r'(^|\s|,)collection_sort\s+(asc|desc)', r'\1%s \2' % sort_field, sort)
-#
-    #q_final = ' AND '.join(q) if hasattr(q, '__iter__') else q
+            facets[x]=request.query_params.getlist(x)
     rows_final = rows if rows in [8, 20] else 20
 
     # Limit params passed through to SOLR
     # Add facet to exclude collections from results
-    params = {#"q": q_final,
-              #"fq": fq,
-              "sort": sort,
-              #"start": start,
+    params = {"sort": sort,
               "page": page,
               "expand": expand,
               "rows": rows_final,
-              #"original_sort": original_sort,
               "text": text,
               "sectionType": section_type,
               "keyword": keyword,
