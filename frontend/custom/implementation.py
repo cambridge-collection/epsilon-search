@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-from typing import Optional
 import re
+from typing import Optional
+
 from fastapi import APIRouter
 
+from frontend.custom.config import CORE_MAP
+from frontend.custom.models.items import router as items_router, ItemsQueryParams # ItemsQueryParams is used by main
 # Import routers from the models subdirectory
 from frontend.custom.models.site_pages import router as pages_router
-from frontend.custom.models.items import router as items_router, ItemsQueryParams # ItemsQueryParams is used by main
-from frontend.custom.config import CORE_MAP
 
 router = APIRouter()
 

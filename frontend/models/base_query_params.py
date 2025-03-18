@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from typing import List, Optional, Union, Dict, Any, Tuple
 import re
+from typing import List, Optional, Union, Dict, Any, Tuple
+
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 from frontend.lib import utils

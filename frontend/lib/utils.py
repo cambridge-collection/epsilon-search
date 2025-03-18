@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 from typing import Union, List
+
 import httpx
 from fastapi import HTTPException
+
 from frontend.defaults import *
+
 
 def stringify(p: Union[List, any]) -> str:
     if isinstance(p, list):
