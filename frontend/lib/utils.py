@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-from typing import Union, List, Optional
-import re
+from typing import Union, List
 import httpx
-from fastapi import FastAPI, Request, Query, HTTPException, Request, Depends
-import frontend.custom.implementation as implementation
+from fastapi import HTTPException
 from frontend.defaults import *
 
 def stringify(p: Union[List, any]) -> str:
@@ -14,14 +12,15 @@ def stringify(p: Union[List, any]) -> str:
 def listify(p: any) -> List:
     return p if isinstance(p, list) else [p]
 
-def ensure_urlencoded(var, safe=""):
-    if isinstance(var, str):
-        return urllib.parse.quote(urllib.parse.unquote(var), safe=safe)
-    elif isinstance(var, dict):
-        return {k: ensure_urlencoded(v, safe) for k, v in var.items() if v is not None}
-    elif isinstance(var, list):
-        return [ensure_urlencoded(item, safe) for item in var]
-    return var
+# Is the following needed?
+# def ensure_urlencoded(var, safe=""):
+#     if isinstance(var, str):
+#         return urllib.parse.quote(urllib.parse.unquote(var), safe=safe)
+#     elif isinstance(var, dict):
+#         return {k: ensure_urlencoded(v, safe) for k, v in var.items() if v is not None}
+#     elif isinstance(var, list):
+#         return [ensure_urlencoded(item, safe) for item in var]
+#     return var
 
 def update_solr_response(result: dict, kwargs: dict) -> dict:
     """

@@ -1,18 +1,8 @@
 #!/usr/bin/env python3
 import json
-#import logging
-#import re
-#import os
 from typing import Union, List, Optional, Annotated, Any, Tuple, Dict
-#import httpx
-#from fastapi import FastAPI, Request, Query, HTTPException, Request, Depends
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-#from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
-#import frontend.models.base_query_params as CoreModel
-#import frontend.custom.implementation as implementation
-#import frontend.custom.models as CustomModels
-#import frontend.lib.utils as utils
-#from frontend.defaults import *
 from frontend.lib.utils import *
 #logger = logging.getLogger("gunicorn.error")
 
@@ -21,24 +11,6 @@ origins = [
     "https://darwin-editorial.cudl-sandbox.net",
     "https://darwin-editorial.darwinproject.ac.uk",
 ]
-
-# Get environment variables and ensure required ones are set.
-#SOLR_HOST = os.getenv("SOLR_HOST")
-#if not SOLR_HOST:
-#    raise EnvironmentError("ERROR: SOLR_HOST environment variable not set")
-#SOLR_PORT = os.getenv("SOLR_PORT")
-#if not SOLR_PORT:
-#    raise EnvironmentError("ERROR: SOLR_PORT environment variable not set")
-#
-#SOLR_URL = f"http://{SOLR_HOST}:{SOLR_PORT}"
-#
-#INTERNAL_ERROR_STATUS_CODE = 500
-#
-#try:
-#    from frontend.custom.implementation import DEFAULT_ROWS
-#    DEFAULT_ROWS = implementation.DEFAULT_ROWS
-#except ImportError:
-#    DEFAULT_ROWS = 20
 
 app = FastAPI()
 app.add_middleware(
@@ -55,10 +27,6 @@ app.include_router(implementation.router)
 async def get_items(
         params: Annotated[implementation.ItemsQueryParams, Query()]
 ):
-    query_params, facet_params = params.separate_parameters()
-    print('PARAMS:', query_params, facet_params)
-    solr = params.get_solr_params()
-    print('SOLR:', solr)
     solr_params = params.get_solr_params()
     return await get_request("items", **solr_params)
 

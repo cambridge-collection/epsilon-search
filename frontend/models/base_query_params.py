@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-from sys import implementation
 from typing import List, Optional, Union, Dict, Any, Tuple
 import re
-from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 from frontend.lib import utils
 
@@ -10,8 +9,6 @@ from frontend.lib import utils
 #    from frontend.custom.implementation import DEFAULT_ROWS
 #except ImportError:
 DEFAULT_ROWS = 20
-
-print(DEFAULT_ROWS)
 
 class CoreQueryParams(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
@@ -75,14 +72,10 @@ class CoreQueryParams(BaseModel):
 
         solr_params = {}
 
-        # Filter out empty parameters.
-        #set_params = {k: v for k, v in url_params.items() if v}
-        #print('SET:', set_params)
         q = []
         fq = []
 
         for name, value in url_params.items():
-            print('HI:', name, value)
             if value:
                 if re.match(r"^facet-.+?$", name):
                     solr_name = re.sub(r"^f[0-9]+-(.+?)$", r"facet-\1", name)

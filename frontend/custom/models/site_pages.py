@@ -6,20 +6,15 @@ import logging
 from fastapi import FastAPI, APIRouter, Request, Query, HTTPException, Request, Depends
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator, ConfigDict
 import frontend.models.base_query_params as CoreModel
-import frontend.custom.implementation as implementation
+# import frontend.custom.implementation as implementation
 import frontend.lib.utils as utils
-
-try:
-    from frontend.custom.implementation import DEFAULT_ROWS
-    DEFAULT_ROWS = implementation.DEFAULT_ROWS
-except ImportError:
-    DEFAULT_ROWS = 20
+from frontend.custom.config import DEFAULT_ROWS
 
 logger = logging.getLogger("gunicorn.error")
 
 router = APIRouter()
 
-class PageQueryParams(CoreModel.CoreQueryParams):
+class PagesQueryParams(CoreModel.CoreQueryParams):
     model_config = ConfigDict(populate_by_name=True)
     s_commentary: Optional[Union[str, List[str]]] = Field(default=None, alias="s-commentary")
     s_key_stage: Optional[Union[str, List[str]]] = Field(default=None, alias="s-key-stage")
@@ -33,25 +28,18 @@ class PageQueryParams(CoreModel.CoreQueryParams):
         return "true" if value not in ["true", "false"] else value
 
     def is_facet(self, key: str, value: Any) -> bool:
-        return re.match(r"^(facet|s)-.+?$", key)
+        return re.match(r"^(facet|s)-.+?$", key) is not None
 
     def get_solr_params(self) -> dict:
         query_params2, facet_params2 = self.separate_parameters()
         url_params = {**query_params2, **facet_params2}
-        print('URL PARAMS:', url_params)
         solr_params = {}
 
-        # Filter out empty parameters.
-        set_params = url_params #{k: v for k, v in url_params.items() if v}
-        print('SET:', set_params)
+        set_params = url_params
         q = []
         fq = []
-        #filters = {}
-        #expand_clauses = {}
-
 
         for name, value in set_params.items():
-            print("Processing ", name, value)
             if value:
                 if name in ["keyword", "text"]:
                     q.append(f'({utils.stringify(value)})')
@@ -76,24 +64,13 @@ class PageQueryParams(CoreModel.CoreQueryParams):
             final_q = "*"
         solr_params["q"] = final_q if final_q not in ["['*']", "['']"] else "*"
         solr_params["fq"] = fq
-        # Merge filters and expand clauses into our parameters.
-        #solr_params = {**solr_params, **filters, **expand_clauses}
-        # Remove unwanted keys.
-        #for k in solr_delete + solr_fields:
-        #    solr_params.pop(k, None)
-        print('IN FN ', solr_params)
+
         return solr_params
 
 @router.get("/pages")
-async def get_pages(
-        request: Request,
-        params: Annotated[PageQueryParams, Query()]
-):
-    query_params, facet_params = params.separate_parameters()
-    print(query_params, facet_params)
+async def get_pages(params: Annotated[PagesQueryParams, Query()]):
     solr_params = params.get_solr_params()
     return await utils.get_request("pages", **solr_params)
-    #return await get_request("pages", **query_params, **facet_params)
 
 @router.put("/page")
 async def update_page(request: Request):

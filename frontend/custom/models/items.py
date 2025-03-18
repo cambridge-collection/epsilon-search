@@ -1,23 +1,14 @@
 #!/usr/bin/env python3
 from typing import Union, List, Optional, Any, Dict, Annotated
 import re
-import json
-import logging
-from fastapi import FastAPI, APIRouter, Request, Query, HTTPException, Request, Depends
-from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator, ConfigDict
+from fastapi import APIRouter
+from pydantic import Field, field_validator, model_validator, ConfigDict
 import frontend.models.base_query_params as CoreModel
 import frontend.custom.implementation as implementation
 import frontend.lib.utils as utils
-
-try:
-    from frontend.custom.implementation import DEFAULT_ROWS
-    DEFAULT_ROWS = implementation.DEFAULT_ROWS
-except ImportError:
-    DEFAULT_ROWS = 20
+from frontend.custom.config import DEFAULT_ROWS
 
 router = APIRouter()
-
-
 
 class ItemsQueryParams(CoreModel.CoreQueryParams):
     model_config = ConfigDict(populate_by_name=True, extra="allow")
@@ -125,9 +116,7 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
         ]
         solr_params = {}
 
-        # Filter out empty parameters.
-        set_params = url_params #{k: v for k, v in url_params.items() if v}
-        print('SET:', set_params)
+        set_params = url_params
         q = []
         fq = []
         filters = {}
@@ -172,7 +161,6 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
             set_params.pop("search-date-type", None)
 
         for name, value in set_params.items():
-            print("Processing ", name, value)
             if value:
                 if name in remap_fields:
                     q.append(f'{name}:({utils.stringify(value)})')
@@ -219,10 +207,7 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
             final_q = "*"
         solr_params["q"] = final_q if final_q not in ["['*']", "['']"] else "*"
         solr_params["fq"] = fq
-        # Merge filters and expand clauses into our parameters.
         solr_params = {**solr_params, **filters, **expand_clauses}
-        # Remove unwanted keys.
         for k in solr_delete + solr_fields:
             solr_params.pop(k, None)
         return solr_params
-
