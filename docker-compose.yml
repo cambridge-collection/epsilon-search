@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: dcp-solr-api
+    container_name: epsilon-solr-api
     environment:
       SOLR_HOST: ${SOLR_HOST:-host.docker.internal}
       SOLR_PORT: ${SOLR_PORT:-8983}

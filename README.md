@@ -2,7 +2,7 @@
 
 The Darwin Search API is based on [CUDL Search](https://github.com/cambridge-collection/cudl-search).
 
-For the Darwin release, use the `darwin-main` branch; the `main` branch contains the original CUDL Search code.
+For the Epsilon Editorial release, use the `epsilon-editorial` branch; the `main` branch contains the original CUDL Search code.
 
 ## Prerequisites
 
@@ -32,34 +32,27 @@ docker compose --env-file .env up --build --force-recreate
 
 The API will be available on the port defined in `API_PORT`. For example:
 
-- If `API_PORT` is set to `90`, access the API at: 
-  <http://localhost:90/items?keyword=*>
+- If `API_PORT` is set to `90`, access the API at:
+  [http://localhost:90/items?keyword=*](http://localhost:90/items?keyword=*)
 
-- If `API_PORT` is set to `80`, access the API at: 
-  <http://localhost/items?keyword=*>
+- If `API_PORT` is set to `80`, access the API at:
+  [http://localhost/items?keyword=*](http://localhost/items?keyword=*)
 
 ## API Endpoints
 
 ### TEI Documents
 
-- **Search TEI Items**  
-  **GET** `/items`  
-  Examples:  
-  - <http://localhost/items?keyword=flowers>  
-  - <http://localhost/items?text=york&year=1868&exclude-cancelled=Yes&f1-document-type=letter>
+- **Search TEI Items**
 
-- **Index / Remove TEI Item**  
+  **GET** `/items`
+
+  Examples:
+  - [http://localhost/items?keyword=flowers](http://localhost/items?keyword=flowers)
+  - [http://localhost/items?text=york&year=1868&exclude-cancelled=Yes&f1-document-type=letter](http://localhost/items?text=york&year=1868&exclude-cancelled=Yes&f1-document-type=letter)
+
+- **Index / Remove TEI Item**
+
   **PUT** and **DELETE** `/item`
-
-### Site (Drupal) Pages
-
-- **Search Site Pages**  
-  **GET** `/pages`  
-  Example:  
-  - <http://localhost/pages?keyword=flowers>
-
-- **Index / Remove Site Page**  
-  **PUT** and **DELETE** `/page`
 
 ## PUT and DELETE Operations
 
@@ -71,12 +64,6 @@ For TEI documents:
 
 ```bash
 curl -X PUT -H "Content-Type: application/json" -d @path/to/TEI-file.json http://localhost/item
-```
-
-For HTML website pages:
-
-```bash
-curl -X PUT -H "Content-Type: application/json" -d @path/to/drupal-page.json http://localhost/page
 ```
 
 ### DELETE Requests
@@ -105,12 +92,12 @@ Solr Search API/
     └── custom/
         ├── __init__.py
         ├── config.py                # Centralised configuration and constants
-        ├── implementation.py        # Aggregates routers from the 
+        ├── implementation.py        # Aggregates routers from the
         |                            # models subdirectory and re-
         |                            # exports shared models/logic
         └── models/
             ├── __init__.py
-            ├── site_pages.py        # Models & endpoints for 
+            ├── site_pages.py        # Models & endpoints for
             |                        # website pages
             └── your_stuff.py        # Your models & endpoints
 ```
@@ -153,24 +140,24 @@ This example assumes that you want to support a new resource called ‘collectio
 
    router = APIRouter()
 
-   # All models should be based on CoreQueryParams. It defines the 
+   # All models should be based on CoreQueryParams. It defines the
    # parameters and functionality common to all endpoints
    class Collection(CoreQueryParams):
        id: int
        name: str
        # Add additional fields as needed.
-       
+
        # You can also add custom model and field validators
        # that run before or after the core processing.
        # If the mapping of your API's parameters to Solr
-       # fieldnames isn't a one to one correspondence, 
+       # fieldnames isn't a one to one correspondence,
        # you will need to add a get_solr_params function
-       # into the model 
+       # into the model
 
    @router.get("/collections", response_model=list[Collection])
    def get_collections():
        # All logic concerning the parsing, validation and manipulation
-       # of paramters and their values should be done in the Collection 
+       # of paramters and their values should be done in the Collection
        # model.
        # The following two commands are all that's needed to convert
        # your parameters into solr queries and retrieve the request.
@@ -189,7 +176,7 @@ This example assumes that you want to support a new resource called ‘collectio
            logger.error(f"Invalid site JSON for fileID: {json_dict.get('fileID')}")
            status_code = utils.INTERNAL_ERROR_STATUS_CODE
        return status_code
-       
+
    @router.delete("/page/{file_id}")
    async def delete_collection(file_id: str):
       # delete_resource takes two parameters. The first is the
@@ -208,18 +195,22 @@ This example assumes that you want to support a new resource called ‘collectio
    ```python
    from fastapi import APIRouter
    from frontend.custom.models.site_pages import router as pages_router
-   
+
    # Import your router
    from frontend.custom.models.collections import router as collections_router
 
    router = APIRouter()
 
    router.include_router(pages_router)
-   
+
    # Register your collection endpoints
    router.include_router(collections_router)
    ```
 
 ### Default Endpoints for Items
 
-If no custom implementation is provided for `ItemsQueryParams` and its endpoints, the Solr Search API will fall back to using the default ones defined in the main application.New projects likely will not need a custom model. The chief reasons to add one would be to support special any special validation and processing requirements that you might have for your parameter values. of certain parameter values. Legacy projects, however, will likely require rather extensive models the url parameters of their legacy applications.
+If no custom implementation is provided for `ItemsQueryParams` and its endpoints, the Solr Search API will fall back to using the default ones defined in the main application.
+
+The most common customisation will be providing a custom data model (`ItemsQueryParams`) for item queries, which can be done according to the instructions above. There is no need to create the actual endpoints since the default ones will use your new data model **provided you register it** using `router.include_router`.
+
+New projects likely won't need much (if any customisation), esp. if their search field names and facet field names match the names of the fields in your solr schema.

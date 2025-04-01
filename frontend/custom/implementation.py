@@ -7,11 +7,9 @@ from fastapi import APIRouter
 from frontend.custom.config import CORE_MAP
 from frontend.custom.models.items import router as items_router, ItemsQueryParams # ItemsQueryParams is used by main
 # Import routers from the models subdirectory
-from frontend.custom.models.site_pages import router as pages_router
 
 router = APIRouter()
 
-router.include_router(pages_router)
 router.include_router(items_router)
 
 

@@ -6,7 +6,7 @@ DEFAULT_ROWS = int(os.environ.get("DEFAULT_ROWS", 20))
 
 CORE_MAP = {
     # resource name -> solr core name
-    "item": "dcp",
+    "item": "epsilon",
     "page": "site",
 }
 
@@ -42,89 +42,49 @@ facet_query = {
             "limit": 5,
             "sort": {"index": "asc"}
         },
-        "f1-volume": {
+        "f1-contributor": {
             "type": "terms",
-            "field": "facet-volume",
-            "limit": 5,
+            "field": "facet-contributor",
+            "limit": 99,
             "sort": {"index": "asc"}
         },
-        "f1-entry-cancelled": {
+        ".env": {
             "type": "terms",
-            "field": "facet-entry-cancelled",
+            "field": "facet-transcription-available",
             "limit": 5,
             "sort": {"index": "desc"}
         },
-        "f1-document-online": {
+        "f1-cdl-images-linked": {
             "type": "terms",
-            "field": "facet-document-online",
+            "field": "facet-cdl-images-linked",
             "limit": 5,
             "sort": {"index": "desc"}
         },
-        "f1-letter-published": {
+        "f1-decade": {
             "type": "terms",
-            "field": "facet-letter-published",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-translation-published": {
-            "type": "terms",
-            "field": "facet-translation-published",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-footnotes-published": {
-            "type": "terms",
-            "field": "facet-footnotes-published",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-has-tnotes": {
-            "type": "terms",
-            "field": "facet-has-tnotes",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-has-cdnotes": {
-            "type": "terms",
-            "field": "facet-has-cdnotes",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-has-annotations": {
-            "type": "terms",
-            "field": "facet-has-annotations",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-linked-to-cudl-images": {
-            "type": "terms",
-            "field": "facet-linked-to-cudl-images",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-darwin-letter": {
-            "type": "terms",
-            "field": "facet-darwin-letter",
-            "limit": 5,
-            "sort": {"index": "desc"}
-        },
-        "f1-year": {
-            "type": "terms",
-            "field": "facet-year",
+            "field": "facet-decade",
             "limit": 100,
             "sort": {"index": "asc"},
             "facet": {
-                "f1-year-month": {
+                "f1-decade-year": {
                     "type": "terms",
-                    "field": "facet-year-month",
-                    "limit": 24,
+                    "field": "facet-decade-year",
+                    "limit": 20,
                     "sort": {"index": "asc"},
                     "facet": {
-                        "f1-year-month-day": {
+                        "f1-decade-year-month": {
                             "type": "terms",
-                            "field": "facet-year-month-day",
-                            "limit": 62,
-                            "sort": {"index": "asc"}
+                            "field": "facet-decade-year-month",
+                            "limit": 24,
+                            "sort": {"index": "asc"},
+                            "facet": {
+                                "f1-decade-year-month-day": {
+                                    "type": "terms",
+                                    "field": "facet-decade-year-month-day",
+                                    "limit": 62,
+                                    "sort": {"index": "asc"}
+                                }
+                            }
                         }
                     }
                 }
