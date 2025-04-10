@@ -9,10 +9,7 @@ from frontend.lib.utils import *
 
 origins = [
     "http://localhost:5173",
-    "https://epsilon-staging.cudl-sandbox.net",
-    "https://epsilon-staging.darwinproject.link",
     "https://epsilon-staging.epsilon.ac.uk",
-    "https://staging.cudl-sandbox.net",
     "https://staging.epsilon.ac.uk",
 ]
 
