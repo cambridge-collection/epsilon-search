@@ -9,8 +9,8 @@ from frontend.lib.utils import *
 
 origins = [
     "http://localhost:5173",
-    "https://epsilon-staging.epsilon.ac.uk",
-    "https://staging.epsilon.ac.uk",
+    "https://production.epsilon.ac.uk",
+    "https://epsilon.ac.uk",
 ]
 
 app = FastAPI()
