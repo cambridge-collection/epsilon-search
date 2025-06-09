@@ -1,8 +1,6 @@
-# Darwin Search API
+# Epsilon Search API
 
-The Darwin Search API is based on [CUDL Search](https://github.com/cambridge-collection/cudl-search).
-
-For the Epsilon Editorial release, use the `epsilon-editorial` branch; the `main` branch contains the original CUDL Search code.
+Use the `epsilon-editorial`, `epsilon-staging` and `epsilon-production` branchs for the editorial, staging and production deployments.
 
 ## Prerequisites
 
