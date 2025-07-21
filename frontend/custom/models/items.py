@@ -122,7 +122,7 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
 
         # Remap text field based on sectionType
         if set_params.get("text") and set_params.get("sectionType") in translation_key:
-            key = translation_key[set_params["sectionType"]]
+            key = translation_key[set_params.get("sectionType")]
             set_params[key] = set_params.pop("text")
             set_params.pop("sectionType", None)
         if set_params.get("sectionType") and not set_params.get("text"):
@@ -204,7 +204,7 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
                     if value in ["author", "addressee", "correspondent", "repository", "volume"]:
                         expand_clauses[f"f.facet-{value}.facet.limit"] = "-1"
                         expand_clauses[f"f.facet-{value}.facet.sort"] = "-1"
-                elif not name in solr_delete + solr_fields:
+                elif not name in solr_delete:
                     q.append(f'{name}:({utils.stringify(value)})')
 
         final_q = " ".join(q)
