@@ -165,7 +165,6 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
             set_params.pop("search-date-type", None)
 
         for name, value in set_params.items():
-            print('Checking %s' % name)
             if value:
                 if name in remap_fields:
                     q.append(f'{name}:({utils.stringify(value)})')
