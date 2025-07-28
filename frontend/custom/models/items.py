@@ -48,7 +48,7 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
         # Pattern matches keys starting with 'f', followed by digits, and then one or more hyphen-separated alphanumeric segments.
         facet_pattern = re.compile(r"^f[0-9]+((-[a-zA-Z0-9]+)+)$")
         defined_fields = set(cls.model_fields.keys())
-        #print(f"DUMP {values}")
+        #logger.info(f"DUMP {values}")
         for key in list(values.keys()):
             if key not in defined_fields:
                 match = facet_pattern.match(key)
@@ -212,5 +212,5 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
         solr_params["q"] = final_q if final_q not in ["['*']", "['']"] else "*"
         solr_params["fq"] = fq
         solr_params = {**solr_params, **filters, **expand_clauses}
-        #print(solr_params)
+        #logger.info(solr_params)
         return solr_params
