@@ -47,8 +47,14 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
     def filter_and_extract_dynamic_facets(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         # Pattern matches keys starting with 'f', followed by digits, and then one or more hyphen-separated alphanumeric segments.
         facet_pattern = re.compile(r"^f[0-9]+((-[a-zA-Z0-9]+)+)$")
-        defined_fields = set(cls.model_fields.keys())
-        #print(f"DUMP {values}")
+        defined_names = set(cls.model_fields.keys())
+        defined_aliases = {
+            f.alias
+            for f in cls.model_fields.values()
+            if getattr(f, "alias", None)
+        }
+        defined_fields = defined_names | defined_aliases
+        #logger.info(f"DUMP {values}")
         for key in list(values.keys()):
             if key not in defined_fields:
                 match = facet_pattern.match(key)
@@ -165,7 +171,6 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
             set_params.pop("search-date-type", None)
 
         for name, value in set_params.items():
-            print('Checking %s' % name)
             if value:
                 if name in remap_fields:
                     q.append(f'{name}:({utils.stringify(value)})')
@@ -213,5 +218,5 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
         solr_params["q"] = final_q if final_q not in ["['*']", "['']"] else "*"
         solr_params["fq"] = fq
         solr_params = {**solr_params, **filters, **expand_clauses}
-        #print(solr_params)
+        #logger.info(solr_params)
         return solr_params
