@@ -81,8 +81,8 @@ class CoreQueryParams(BaseModel):
                 if re.match(r"^facet-.+?$", name):
                     solr_name = re.sub(r"^f[0-9]+-(.+?)$", r"facet-\1", name)
                     for x in utils.listify(value):
-                        x_clean = re.sub(r'^"(.+?)"$', r'\1', x)
-                        fq.append(f'{solr_name}:"{x_clean}"')
+                        x_escaped = x.replace('"', '\\"')
+                        fq.append(f'{solr_name}:"{x_escaped}"')
                 elif name == "page":
                     page_val = int(value)
                     solr_params["start"] = (page_val - 1) * DEFAULT_ROWS
