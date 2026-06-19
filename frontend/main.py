@@ -10,7 +10,7 @@ from frontend.lib.utils import *
 origins = [
     "http://localhost:5173",
     "https://epsilon-editorial.epsilon.ac.uk",
-    "https://editorial.epsilon.ac.uk"
+    "https://editorial.epsilon.ac.uk",
 ]
 
 app = FastAPI()
@@ -46,6 +46,7 @@ async def update_item(request: Request):
         logger.error(f"Invalid item JSON for fileID: {json_dict.get('fileID')}")
         status_code = INTERNAL_ERROR_STATUS_CODE
     return status_code
+
 
 @app.delete("/item/{file_id}")
 async def delete_item(file_id: str):
