@@ -8,7 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from frontend.lib.utils import *
 
 origins = [
-    "http://localhost:5173",
     "https://epsilon-staging.epsilon.ac.uk",
     "https://staging.epsilon.ac.uk",
 ]
