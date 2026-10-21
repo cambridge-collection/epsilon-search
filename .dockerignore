@@ -1,4 +1,58 @@
-.idea
+# VCS
 .git
-package-lock.json
+.gitignore
+.gitattributes
+
+# Editors / IDEs
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python build / cache
+__pycache__
+**/__pycache__
+*.py[cod]
+*$py.class
+*.so
+*.egg-info
+.eggs
+build
+dist
+
+# Virtual environments
 venv
+.venv
+env
+ENV
+
+# Test / coverage
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.tox
+.nox
+.coverage
+.coverage.*
+htmlcov
+coverage.xml
+
+# Secrets / local config
+.env
+.env.*
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Docs / misc
+*.md
+package-lock.json
+
+# Logs
+*.log
