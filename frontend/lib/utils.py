@@ -75,7 +75,7 @@ async def get_request(resource_type: str, **kwargs):
     params.pop("original_sort", None)
 
     url = f"{SOLR_URL}/solr/{core}/spell"
-    async with httpx.AsyncClient(timeout=60) as client:
+    async with httpx.AsyncClient(timeout=SOLR_SEARCH_TIMEOUT) as client:
         try:
             response = await client.get(
                 url,
