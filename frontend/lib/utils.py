@@ -38,7 +38,7 @@ def update_solr_response(result: dict, kwargs: dict) -> dict:
 def http_exception_from_request_error(e: httpx.HTTPError) -> HTTPException:
     response = getattr(e, "response", None)
     if response is None:
-        return HTTPException(status_code=502, detail=str(e).split(":")[-1])
+        return HTTPException(status_code=502, detail=str(e).split(":")[-1] or type(e).__name__)
     try:
         results = response.json()
     except ValueError:
