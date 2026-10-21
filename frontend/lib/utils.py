@@ -35,18 +35,36 @@ def update_solr_response(result: dict, kwargs: dict) -> dict:
     return result
 
 
+def http_exception_from_request_error(e: httpx.HTTPError) -> HTTPException:
+    response = getattr(e, "response", None)
+    if response is None:
+        return HTTPException(status_code=502, detail=str(e).split(":")[-1])
+    try:
+        results = response.json()
+    except ValueError:
+        results = {}
+    # Solr omits responseHeader entirely while its cores are still loading.
+    status_code = results.get("responseHeader", {}).get("status") or response.status_code
+    detail = results.get("error", {}).get("msg") or response.reason_phrase or str(e)
+    return HTTPException(status_code=status_code, detail=detail)
+
+
 async def delete_resource(resource_type: str, file_id: str) -> int:
     core = implementation.get_core_name(resource_type)
     if not core:
-        return INTERNAL_ERROR_STATUS_CODE
+        raise HTTPException(status_code=INTERNAL_ERROR_STATUS_CODE, detail="Invalid resource type")
     delete_query = f"fileID:{file_id}"
     delete_cmd = {"delete": {"query": delete_query}}
     async with httpx.AsyncClient(timeout=60) as client:
-        response = await client.post(
-            f"{SOLR_URL}/solr/{core}/update",
-            headers={"Content-Type": "application/json; charset=UTF-8"},
-            json=delete_cmd,
-        )
+        try:
+            response = await client.post(
+                f"{SOLR_URL}/solr/{core}/update",
+                headers={"Content-Type": "application/json; charset=UTF-8"},
+                json=delete_cmd,
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as e:
+            raise http_exception_from_request_error(e)
     return response.status_code
 
 async def get_request(resource_type: str, **kwargs):
@@ -66,8 +84,7 @@ async def get_request(resource_type: str, **kwargs):
             )
             response.raise_for_status()
         except httpx.HTTPError as e:
-            detail = e.response.text if e.response is not None else str(e)
-            raise HTTPException(status_code=502, detail=detail.split(":")[-1])
+            raise http_exception_from_request_error(e)
     result = response.json()
     return update_solr_response(result, kwargs)
 
@@ -87,5 +104,5 @@ async def put_item(resource_type: str, data, params):
             )
             response.raise_for_status()
         except httpx.HTTPError as e:
-            raise e
+            raise http_exception_from_request_error(e)
     return response.status_code
