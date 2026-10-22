@@ -2,6 +2,8 @@ FROM python:3.12
 
 WORKDIR /code
 
+RUN pip install --no-cache-dir --upgrade pip==26.2.2
+
 COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
