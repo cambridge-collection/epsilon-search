@@ -19,7 +19,7 @@ SOLR_URL = f"http://{SOLR_HOST}:{SOLR_PORT}"
 
 INTERNAL_ERROR_STATUS_CODE = 500
 
-# Kept well under gunicorn's --timeout in the Dockerfile; a Solr timeout surfaces as a 502.
+# Kept well under gunicorn's --timeout in the Dockerfile; a Solr timeout surfaces as a 504.
 SOLR_SEARCH_TIMEOUT = httpx.Timeout(15, connect=5)
 
 try:
