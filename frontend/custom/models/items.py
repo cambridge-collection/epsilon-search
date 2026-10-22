@@ -216,7 +216,7 @@ class ItemsQueryParams(CoreModel.CoreQueryParams):
         if final_q in ["['*']", "['']"]:
             final_q = "*"
         solr_params["q"] = final_q if final_q not in ["['*']", "['']"] else "*"
-        solr_params["fq"] = fq
+        solr_params["fq"] = list(dict.fromkeys(fq))
         solr_params = {**solr_params, **filters, **expand_clauses}
         #logger.info(solr_params)
         return solr_params
